@@ -16,7 +16,7 @@
 #   Version: 1.1
 #
 #   - v.1.0 Joe Farage, 23.01.2015
-# 	- v.1.1 Steve Miller, 16.12.2015	:Updated to copy echo commands into JSS policy logs
+#   - v.1.1 Steve Miller, 16.12.2015	:Updated to copy echo commands into JSS policy logs
 #
 ####################################################################################################
 # Script to download and install Adobe Shockwave Player.
