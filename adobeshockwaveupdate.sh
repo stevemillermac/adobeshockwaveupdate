@@ -13,10 +13,11 @@
 #
 # HISTORY
 #
-#   Version: 1.1
+#   Version: 1.2
 #
 #   - v.1.0 Joe Farage, 23.01.2015
-#   - v.1.1 Steve Miller, 16.12.2015	:Updated to copy echo commands into JSS policy logs
+#	- v.1.1 Steve Miller, 16.12.2015:	Updated to copy echo commands into JSS policy logs
+#	- v.1.2 Steve Miller, 21.12.2015:	Changed unmount to use hdiutil commands
 #
 ####################################################################################################
 # Script to download and install Adobe Shockwave Player.
@@ -24,6 +25,7 @@
 
 dmgfile="Shockwave_Installer_Full_64bit.dmg"
 dmgmount="Adobe Shockwave 12"
+mntpoint=`diskutil list | grep Shockwave | awk '{print $8}' `
 logfile="/Library/Logs/AdobeShockwaveUpdateScript.log"
 PLUGINPATH="/Library/Internet Plug-Ins/DirectorShockwave.plugin"
 
@@ -46,11 +48,11 @@ if [ '`/usr/bin/uname -p`'="i386" -o '`/usr/bin/uname -p`'="x86_64" ]; then
     latestvernorm=`echo ${latestver}`
     # Get the version number of the currently-installed Adobe Shockwave, if any.
     if [ -e "${PLUGINPATH}" ]; then
-        currentinstalledver=`/usr/bin/defaults read "${PLUGINPATH}/Contents/Info" CFBundleShortVersionString | sed 's/[r]/./g'`
+        currentinstalledver=`/usr/bin/defaults read "${PLUGINPATH}/Contents/Info.plist" CFBundleShortVersionString | sed 's/[r]/./g'`
         echo "Current installed version is: $currentinstalledver"
-        if [ "${latestver}" != "${currentinstalledver}" ]; then
-          echo "Adobe Shockwave is current. Exiting"
-          exit 0
+        if [ "${latestver}" = "${currentinstalledver}" ]; then
+            echo "Adobe Shockwave is current. Exiting"
+            exit 0
         fi
     else
         currentinstalledver="none"
@@ -58,8 +60,6 @@ if [ '`/usr/bin/uname -p`'="i386" -o '`/usr/bin/uname -p`'="x86_64" ]; then
     fi
 
 
-#	CurrVersNormalized=$( echo $latestver | sed -e 's/[.]//g' -e 's/20//' )
-#	echo "CurrVersNormalized: $ASCurrVersNormalized"
     url1="https://fpdownload.macromedia.com/get/shockwave/default/english/macosx/latest/Shockwave_Installer_Full_64bit.dmg"
 
     #Build URL  
@@ -78,30 +78,34 @@ if [ '`/usr/bin/uname -p`'="i386" -o '`/usr/bin/uname -p`'="x86_64" ]; then
         /bin/echo "`date`: Installing..." >> ${logfile}
         /usr/sbin/installer -pkg "/Volumes/Adobe Shockwave 12/Shockwave_Installer_Full.pkg" -target / > /dev/null
 
+		#Unmount DMG and delete tmp files
         /bin/sleep 10
         /bin/echo "`date`: Unmounting installer disk image." >> ${logfile}
-        /sbin/umount "/Volumes/Adobe Shockwave 12"
+        mntpoint=`diskutil list | grep Shockwave | awk '{print $8}' `
+        /bin/echo The mount point is "$mntpoint"
+        hdiutil unmount $mntpoint -force -quiet
+        hdiutil detach $mntpoint -force -quiet
         /bin/sleep 10
         /bin/echo "`date`: Deleting disk image." >> ${logfile}
         /bin/rm /tmp/${dmgfile}
 
         #double check to see if the new version got updated
-        newlyinstalledver=`/usr/bin/defaults read "${PLUGINPATH}/Contents/Info" CFBundleShortVersionString | sed 's/[r]/./g'`
+        newlyinstalledver=`/usr/bin/defaults read "${PLUGINPATH}/Contents/Info.plist" CFBundleShortVersionString | sed 's/[r]/./g'`
         if [ "${latestvernorm}" = "${newlyinstalledver}" ]; then
-          /bin/echo "SUCCESS: Adobe Shockwave has been updated to version ${newlyinstalledver}"
-          /bin/echo "`date`: SUCCESS: Adobe Shockwave has been updated to version ${newlyinstalledver}" >> ${logfile}
+            /bin/echo "SUCCESS: Adobe Shockwave has been updated to version ${newlyinstalledver}"
+            /bin/echo "`date`: SUCCESS: Adobe Shockwave has been updated to version ${newlyinstalledver}" >> ${logfile}
         else
         	/bin/echo "ERROR: Adobe Shockwave update unsuccessful, version remains at ${currentinstalledver}."
-          /bin/echo "`date`: ERROR: Adobe Shockwave update unsuccessful, version remains at ${currentinstalledver}." >> ${logfile}
-          /bin/echo "--" >> ${logfile}
-          exit 1
+            /bin/echo "`date`: ERROR: Adobe Shockwave update unsuccessful, version remains at ${currentinstalledver}." >> ${logfile}
+            /bin/echo "--" >> ${logfile}
+            exit 1
         fi
 
     # If Adobe Shockwave is up to date already, just log it and exit.       
     else
     	/bin/echo "Adobe Shockwave is already up to date, running ${currentinstalledver}."
-      /bin/echo "`date`: Adobe Shockwave is already up to date, running ${currentinstalledver}." >> ${logfile}
-      /bin/echo "--" >> ${logfile}
+        /bin/echo "`date`: Adobe Shockwave is already up to date, running ${currentinstalledver}." >> ${logfile}
+        /bin/echo "--" >> ${logfile}
     fi  
 else
     /bin/echo "`date`: ERROR: This script is for Intel Macs only." >> ${logfile}
