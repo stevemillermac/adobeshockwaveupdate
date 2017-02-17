@@ -16,8 +16,8 @@
 #   Version: 1.2
 #
 #   - v.1.0 Joe Farage, 23.01.2015
-#	- v.1.1 Steve Miller, 16.12.2015:	Updated to copy echo commands into JSS policy logs
-#	- v.1.2 Steve Miller, 21.12.2015:	Changed unmount to use hdiutil commands
+#   - v.1.1 Steve Miller, 16.12.2015:   Updated to copy echo commands into JSS policy logs
+#   - v.1.2 Steve Miller, 21.12.2015:   Changed unmount to use hdiutil commands
 #
 ####################################################################################################
 # Script to download and install Adobe Shockwave Player.
@@ -78,7 +78,7 @@ if [ '`/usr/bin/uname -p`'="i386" -o '`/usr/bin/uname -p`'="x86_64" ]; then
         /bin/echo "`date`: Installing..." >> ${logfile}
         /usr/sbin/installer -pkg "/Volumes/Adobe Shockwave 12/Shockwave_Installer_Full.pkg" -target / > /dev/null
 
-		#Unmount DMG and delete tmp files
+        #Unmount DMG and delete tmp files
         /bin/sleep 10
         /bin/echo "`date`: Unmounting installer disk image." >> ${logfile}
         mntpoint=`diskutil list | grep Shockwave | awk '{print $8}' `
@@ -95,7 +95,7 @@ if [ '`/usr/bin/uname -p`'="i386" -o '`/usr/bin/uname -p`'="x86_64" ]; then
             /bin/echo "SUCCESS: Adobe Shockwave has been updated to version ${newlyinstalledver}"
             /bin/echo "`date`: SUCCESS: Adobe Shockwave has been updated to version ${newlyinstalledver}" >> ${logfile}
         else
-        	/bin/echo "ERROR: Adobe Shockwave update unsuccessful, version remains at ${currentinstalledver}."
+            /bin/echo "ERROR: Adobe Shockwave update unsuccessful, version remains at ${currentinstalledver}."
             /bin/echo "`date`: ERROR: Adobe Shockwave update unsuccessful, version remains at ${currentinstalledver}." >> ${logfile}
             /bin/echo "--" >> ${logfile}
             exit 1
@@ -103,7 +103,7 @@ if [ '`/usr/bin/uname -p`'="i386" -o '`/usr/bin/uname -p`'="x86_64" ]; then
 
     # If Adobe Shockwave is up to date already, just log it and exit.       
     else
-    	/bin/echo "Adobe Shockwave is already up to date, running ${currentinstalledver}."
+        /bin/echo "Adobe Shockwave is already up to date, running ${currentinstalledver}."
         /bin/echo "`date`: Adobe Shockwave is already up to date, running ${currentinstalledver}." >> ${logfile}
         /bin/echo "--" >> ${logfile}
     fi  
